@@ -8,24 +8,7 @@ failingApp = new App()
 describe "App", ->
 
   before (done) ->
-    app.update(done)
-
-  before (done) ->
-    failingApp.update ->
-      failingApp.timeout = 1
-      done()
-
-  describe "#update()", ->
-
-    it "works with a normal timeout", (done) ->
-      app.update (err, updated) ->
-        assert.ok(updated)
-        done()
-
-    it "fails with a short timeout", (done) ->
-      failingApp.update (err, updated) ->
-        assert.ok(!updated)
-        done()
+    setTimeout(done, 250)
 
   describe "GET /", ->
 
@@ -44,7 +27,7 @@ describe "App", ->
         .end (err, res) ->
           return done(err) if err
           assert semver.valid(res.text)
-          assert.equal semver.parse(res.text).minor%2, 0
+          assert.equal(semver.parse(res.text).minor % 2, 0)
           done()
 
     it "works with a failing endpoint", (done) ->
@@ -55,7 +38,7 @@ describe "App", ->
         .end (err, res) ->
           return done(err) if err
           assert semver.valid(res.text)
-          assert.equal semver.parse(res.text).minor%2, 0
+          assert.equal(semver.parse(res.text).minor % 2, 0)
           done()
 
   describe "GET /node/unstable", ->
@@ -68,7 +51,7 @@ describe "App", ->
         .end (err, res) ->
           return done(err) if err
           assert semver.valid(res.text)
-          assert.equal semver.parse(res.text).minor%2, 1
+          assert.equal(semver.parse(res.text).minor % 2, 1)
           done()
 
     it "works with a failing endpoint", (done) ->
@@ -79,7 +62,7 @@ describe "App", ->
         .end (err, res) ->
           return done(err) if err
           assert semver.valid(res.text)
-          assert.equal semver.parse(res.text).minor%2, 1
+          assert.equal(semver.parse(res.text).minor % 2, 1)
           done()
 
   describe "GET /node/resolve/0.8.x", ->
@@ -165,7 +148,7 @@ describe "App", ->
           return done(err) if err
           assert.equal semver.parse(res.text).minor, 8
           done()
-    
+
     it "works with a failing endpoint", (done) ->
       supertest(app)
         .get("/node/resolve?range=0.8.x")
@@ -191,7 +174,7 @@ describe "App", ->
           assert.equal typeof(res.body.updated), "string"
           assert.ok res.body.versions.length
           done()
-    
+
     it "works with a failing endpoint", (done) ->
       supertest(failingApp)
         .get("/node.json")
@@ -205,14 +188,3 @@ describe "App", ->
           assert.equal typeof(res.body.updated), "string"
           assert.ok res.body.versions.length
           done()
-
-  describe "Auto-updating", ->
-
-    it "should start as soon as update is called", (done) ->
-      quickApp = new App()
-      quickApp.interval = 50
-      checkUpdates = () ->
-        assert.ok quickApp.updates >= 3 and quickApp.updates <= 5
-        done()
-      quickApp.update()
-      setTimeout(checkUpdates, 200)

@@ -1,8 +1,8 @@
-if (process.env.NODE_ENV === 'production') require('newrelic');
-
 var App = require('./lib/app');
+if (process.env.NODE_ENV === 'production') {
+  require('newrelic');
+}
+
 var app = new App();
 
-app.update(function() {
-  app.listen(process.env.PORT || 5000);
-});
+app.listen(process.env.PORT || 5000);

@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test'
 assert = require "assert"
 semver = require "semver"
 fs = require "fs"
-Resolver = require "../lib/resolver"
+Resolver = require "../lib/resolvers/node"
 
 html = fs.readFileSync(__dirname + '/fixtures/node.html').toString();
 
@@ -32,12 +32,6 @@ describe "Resolver", ->
     it "has a latest_unstable version", ->
       assert.equal typeof(r.latest_unstable), "string"
 
-    it "defaults to latest stable version when given crazy input", ->
-      assert.equal r.satisfy(null), r.latest_stable
-      assert.equal r.satisfy(undefined), r.latest_stable
-      assert.equal r.satisfy(""), r.latest_stable
-      assert.equal r.satisfy("boogers"), r.latest_stable
-
     it "only includes version >=0.8.6", ->
       assert.equal r.all[0], '0.8.6'
       assert r.all.every (version) -> semver.gte(version, '0.8.6')
@@ -65,36 +59,41 @@ describe "Resolver", ->
     it "returns latest stable for versions that are too old", ->
       assert.equal r.satisfy("0.4.1"), r.latest_stable
 
-  describe "override", ->
+    it "defaults to latest stable version when given crazy input", ->
+      assert.equal r.satisfy(null), r.latest_stable
+      assert.equal r.satisfy(undefined), r.latest_stable
+      assert.equal r.satisfy(""), r.latest_stable
+      assert.equal r.satisfy("boogers"), r.latest_stable
 
-    it "becomes latest_stable", (done) ->
-      assert.notEqual r.latest_stable, '0.10.15'
-      process.env.STABLE_NODE_VERSION = '0.10.15'
-      r = new Resolver
-      r.parse(html)
-      assert r.latest_stable, '0.10.15'
-      done()
+    describe "with environment override", ->
 
-    it "satisfies stable-seeking ranges", (done) ->
-      assert.notEqual r.satisfy(">0.8"), '0.10.3'
-      process.env.STABLE_NODE_VERSION = '0.10.3'
-      r = new Resolver
-      r.parse(html)
-      assert.equal r.satisfy(">0.8"), '0.10.3'
-      done()
+      it "becomes latest_stable", (done) ->
+        assert.notEqual r.latest_stable, '0.10.15'
+        process.env.STABLE_NODE_VERSION = '0.10.15'
+        r = new Resolver
+        r.parse(html)
+        assert r.latest_stable, '0.10.15'
+        done()
 
-    it "still resolves unstable ranges", (done) ->
-      assert.equal semver.parse(r.satisfy('0.11.x')).minor, 11
-      process.env.STABLE_NODE_VERSION = '0.8.20'
-      r = new Resolver
-      r.parse(html)
-      assert.equal semver.parse(r.satisfy('0.11.x')).minor, 11
-      done()
+      it "satisfies stable-seeking ranges", (done) ->
+        assert.notEqual r.satisfy(">0.8"), '0.10.3'
+        process.env.STABLE_NODE_VERSION = '0.10.3'
+        r = new Resolver
+        r.parse(html)
+        assert.equal r.satisfy(">0.8"), '0.10.3'
+        done()
 
-    it "still resolves versions at a higher patchlevel than the override", (done) ->
-      process.env.STABLE_NODE_VERSION = '0.10.18'
-      r = new Resolver
-      r.parse(html)
-      assert.equal r.satisfy('0.10.19'), '0.10.19'
-      done()
-      
+      it "still resolves unstable ranges", (done) ->
+        assert.equal semver.parse(r.satisfy('0.11.x')).minor, 11
+        process.env.STABLE_NODE_VERSION = '0.8.20'
+        r = new Resolver
+        r.parse(html)
+        assert.equal semver.parse(r.satisfy('0.11.x')).minor, 11
+        done()
+
+      it "still resolves versions at a higher patchlevel than the override", (done) ->
+        process.env.STABLE_NODE_VERSION = '0.10.18'
+        r = new Resolver
+        r.parse(html)
+        assert.equal r.satisfy('0.10.19'), '0.10.19'
+        done()
