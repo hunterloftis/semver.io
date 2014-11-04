@@ -1,14 +1,28 @@
 assert = require "assert"
 semver = require "semver"
 supertest = require "supertest"
+
 App = require "../lib/app"
+
 app = new App()
 failingApp = new App()
 
 describe "App", ->
 
+  # TODO: at some point, have the app send an event when it's ready to start listening
+  # (after all resolvers have updated at least once)
+  
   before (done) ->
-    setTimeout(done, 250)
+    this.timeout(10000)
+    setTimeout(done, 9000)
+
+  before (done) ->
+    this.timeout(10000)
+    failingApp.resolvers.node.url = 'http://nodejs.org/fail/'
+    failingApp.resolvers.node.update (err, updated) ->
+      assert(err)
+      assert(!updated)
+      done()
 
   describe "GET /", ->
 
