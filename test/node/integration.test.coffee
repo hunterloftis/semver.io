@@ -19,21 +19,21 @@ describe "Node Routes", ->
   describe "Initialization", ->
 
     it "updates the app", (done) ->
-      this.timeout(10000)
+      this.timeout(2000)
       app.resolvers.node.update (err, updated) ->
         assert(!err)
         assert(updated)
         done()
 
     it "prime's the failing app's cache", (done) ->
-      this.timeout(10000)
+      this.timeout(2000)
       failingApp.resolvers.node.update (err, updated) ->
         assert(!err)
         assert(updated)
         done()
 
     it "redirects the failing app to a false endpoint", (done) ->
-      this.timeout(10000)
+      this.timeout(2000)
       failingApp.resolvers.node.source.url = 'http://nodejs.org/fail/';
       failingApp.resolvers.node.update (err, updated) ->
         assert(err)
