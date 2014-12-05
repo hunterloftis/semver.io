@@ -14,9 +14,10 @@
     "marked": "~0.2.10",
     "newrelic": "~1.0.0",
     "node-version-resolver": "^0.2.7",
+    "npm-stats": "^1.1.0",
     "pygmentize-bundled": "~2.1.0",
     "semver": "~2.2.1",
-    "superagent": "~0.15.4",
+    "superagent": "^0.15.7",
     "supertest": "~0.8.0"
   },
   "engines": {

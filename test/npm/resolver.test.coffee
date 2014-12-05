@@ -1,13 +1,12 @@
 process.env.NODE_ENV = 'test'
 
-assert = require "assert"
-semver = require "semver"
-fs = require "fs"
-Resolver = require "../../lib/resolvers/node"
+assert = require 'assert'
+semver = require 'semver'
+fs = require 'fs'
+Resolver = require '../../lib/resolvers/npm'
+versions = require '../fixtures/npm.json'
 
-html = fs.readFileSync(__dirname + '/../fixtures/node.html').toString();
-
-describe "Node Resolver", ->
+describe "Npm Resolver", ->
 
   describe "default properties", ->
 
@@ -30,11 +29,11 @@ describe "Node Resolver", ->
     it "have never been updated", ->
       assert.ok(!this.r.updated)
 
-  describe "parse()", ->
+  describe "_parse()", ->
 
     before ->
       this.r = new Resolver()
-      this.r.parse(html)
+      this.r._parse(versions)
 
     it "has an array of all versions", ->
       assert.equal typeof(this.r.all), "object"
@@ -58,7 +57,7 @@ describe "Node Resolver", ->
 
     before ->
       this.r = new Resolver()
-      this.r.parse(html)
+      this.r._parse(html)
 
     it "honors explicit version strings", ->
       assert.equal this.r.satisfy("0.10.1"), "0.10.1"
@@ -91,27 +90,30 @@ describe "Node Resolver", ->
 
       before ->
         this.r = new Resolver()
-        this.r.parse(html)
+        this.r._parse(html)
+
+      after ->
+        delete process.env.STABLE_NODE_VERSION
 
       it "becomes latest_stable", ->
         assert.notEqual this.r.latest_stable, '0.10.15'
         process.env.STABLE_NODE_VERSION = '0.10.15'
-        this.r.parse(html)
+        this.r._parse(html)
         assert this.r.latest_stable, '0.10.15'
 
       it "satisfies stable-seeking ranges", ->
         assert.notEqual this.r.satisfy('>0.8'), '0.10.3'
         process.env.STABLE_NODE_VERSION = '0.10.3'
-        this.r.parse(html)
+        this.r._parse(html)
         assert.equal this.r.satisfy('>0.8'), '0.10.3'
 
       it "still resolves unstable ranges", ->
         assert.equal semver.parse(this.r.satisfy('0.11.x')).minor, 11
         process.env.STABLE_NODE_VERSION = '0.8.20'
-        this.r.parse(html)
+        this.r._parse(html)
         assert.equal semver.parse(this.r.satisfy('0.11.x')).minor, 11
 
       it "still resolves versions at a higher patchlevel than the override", ->
         process.env.STABLE_NODE_VERSION = '0.10.18'
-        this.r.parse(html)
+        this.r._parse(html)
         assert.equal this.r.satisfy('0.10.19'), '0.10.19'
