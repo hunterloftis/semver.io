@@ -1,7 +1,10 @@
 # semver.io
 
 semver.io is a plaintext and JSON webservice
-that tracks all available versions of node.js, npm, and nginx.
+that tracks all available versions of
+[node.js](/node/versions),
+[npm](/npm/versions),
+and [nginx](/nginx/versions).
 It uses that version info to resolve
 [semver range queries](https://npmjs.org/doc/misc/semver.html#Ranges).
 It's used by Heroku's
@@ -43,6 +46,7 @@ There are CORS-friendly HTTP endpoints for each source
 with the whole kit and caboodle:
 
 - [semver.io/node.json](https://semver.io/node.json)
+- [semver.io/npm.json](https://semver.io/npm.json)
 - [semver.io/nginx.json](https://semver.io/nginx.json)
 
 The response is something like:
