@@ -3,26 +3,43 @@ semver = require "semver"
 supertest = require "supertest"
 
 App = require "../../lib/app"
+Resolver = require "../../lib/resolver"
+NodeSource = require "../../lib/sources/node"
 
-app = new App()
-failingApp = new App()
+app = new App({
+  node: new Resolver(new NodeSource()),
+});
+
+failingApp = new App({
+  node: new Resolver(new NodeSource())
+});
 
 describe "Node Routes", ->
 
-  # TODO: at some point, have the app send an event when it's ready to start listening
-  # (after all resolvers have updated at least once)
+  describe "Initialization", ->
 
-  before (done) ->
-    this.timeout(10000)
-    setTimeout(done, 9000)
+    it "updates the app", (done) ->
+      this.timeout(10000)
+      app.resolvers.node.update (err, updated) ->
+        assert(!err)
+        assert(updated)
+        done()
 
-  before (done) ->
-    this.timeout(10000)
-    failingApp.resolvers.node.url = 'http://nodejs.org/fail/'
-    failingApp.resolvers.node.update (err, updated) ->
-      assert(err)
-      assert(!updated)
-      done()
+    it "prime's the failing app's cache", (done) ->
+      this.timeout(10000)
+      failingApp.resolvers.node.update (err, updated) ->
+        assert(!err)
+        assert(updated)
+        done()
+
+    it "redirects the failing app to a false endpoint", (done) ->
+      this.timeout(10000)
+      failingApp.resolvers.node.source.url = 'http://nodejs.org/fail/';
+      failingApp.resolvers.node.update (err, updated) ->
+        assert(err)
+        assert(!updated)
+        done()
+
 
   describe "GET /node/stable", ->
 
@@ -38,7 +55,7 @@ describe "Node Routes", ->
           done()
 
     it "works with a failing endpoint", (done) ->
-      supertest(app)
+      supertest(failingApp)
         .get("/node/stable")
         .expect(200)
         .expect('content-type', /text\/plain/)
