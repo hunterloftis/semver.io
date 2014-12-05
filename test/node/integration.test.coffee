@@ -19,21 +19,21 @@ describe "Node Routes", ->
   describe "Initialization", ->
 
     it "updates the app", (done) ->
-      this.timeout(2000)
+      this.timeout(20000)
       app.resolvers.node.update (err, updated) ->
         assert(!err)
         assert(updated)
         done()
 
     it "prime's the failing app's cache", (done) ->
-      this.timeout(2000)
+      this.timeout(20000)
       failingApp.resolvers.node.update (err, updated) ->
         assert(!err)
         assert(updated)
         done()
 
     it "redirects the failing app to a false endpoint", (done) ->
-      this.timeout(2000)
+      this.timeout(20000)
       failingApp.resolvers.node.source.url = 'http://nodejs.org/fail/';
       failingApp.resolvers.node.update (err, updated) ->
         assert(err)
@@ -194,9 +194,9 @@ describe "Node Routes", ->
           return done(err) if err
           assert.equal typeof(res.body.stable), "string"
           assert.equal typeof(res.body.unstable), "string"
-          assert.equal typeof(res.body.versions), "object"
+          assert.equal typeof(res.body.all), "object"
           assert.equal typeof(res.body.updated), "string"
-          assert.ok res.body.versions.length
+          assert.ok res.body.all.length
           done()
 
     it "works with a failing endpoint", (done) ->
@@ -208,7 +208,7 @@ describe "Node Routes", ->
           return done(err) if err
           assert.equal typeof(res.body.stable), "string"
           assert.equal typeof(res.body.unstable), "string"
-          assert.equal typeof(res.body.versions), "object"
+          assert.equal typeof(res.body.all), "object"
           assert.equal typeof(res.body.updated), "string"
-          assert.ok res.body.versions.length
+          assert.ok res.body.all.length
           done()

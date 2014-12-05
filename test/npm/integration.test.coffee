@@ -196,9 +196,9 @@ describe "Npm Routes", ->
           return done(err) if err
           assert.equal typeof(res.body.stable), "string"
           assert.equal typeof(res.body.unstable), "string"
-          assert.equal typeof(res.body.versions), "object"
+          assert.equal typeof(res.body.all), "object"
           assert.equal typeof(res.body.updated), "string"
-          assert.ok res.body.versions.length
+          assert.ok res.body.all.length
           done()
 
     it "works with a failing endpoint", (done) ->
@@ -210,7 +210,7 @@ describe "Npm Routes", ->
           return done(err) if err
           assert.equal typeof(res.body.stable), "string"
           assert.equal typeof(res.body.unstable), "string"
-          assert.equal typeof(res.body.versions), "object"
+          assert.equal typeof(res.body.all), "object"
           assert.equal typeof(res.body.updated), "string"
-          assert.ok res.body.versions.length
+          assert.ok res.body.all.length
           done()
